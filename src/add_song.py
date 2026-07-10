@@ -52,7 +52,8 @@ def add_song(songs_folder):
             ],
             "extractor-args": "youtube:player_js_version=actual",
             "postprocessor_args": {
-                "extractaudio": ["-ar", str(SAMPLE_RATE)],  # sample rate → ffmpeg
+                # sample rate + EBU R128 loudness normalization to -14 LUFS → ffmpeg
+                "extractaudio": ["-ar", str(SAMPLE_RATE), "-af", "loudnorm=I=-14:TP=-1:LRA=11"],
             },
         }
 
