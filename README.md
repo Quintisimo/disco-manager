@@ -1,6 +1,11 @@
-# Dead As Disco Music Downloader
+# Disco Manager
 
-A simple wrapper around [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [ffmpeg](https://ffmpeg.org/) to search, download songs from YouTube and add it to the game [Dead As Disco](https://deadasdisco.com/). Tempo is detected with a built-in port of [bpm-tools](https://www.pogo.org.uk/~mark/bpm-tools/) algorithm.
+A simple wrapper around [yt-dlp](https://github.com/yt-dlp/yt-dlp) and [ffmpeg](https://ffmpeg.org/) to manage your custom songs for [Dead As Disco](https://deadasdisco.com/).
+
+## Features
+
+- Search and download songs from YouTube, detect the bpm and automatically add them to the game.
+- Delete custom songs from the game.
 
 ## IMPORT_SONGS_PATH
 
@@ -14,11 +19,6 @@ Run the cli:
 The game should not be running when you run the CLI.
 
 ```bash
-  docker run --privileged --rm -it -v "IMPORT_SONGS_PATH:/app/songs" ghcr.io/quintisimo/dad-music-downloader:latest
-```
-
-OR
-
-```bash
-  podman run --privileged --rm -it -v "IMPORT_SONGS_PATH:/app/songs" ghcr.io/quintisimo/dad-music-downloader:latest
+  # Can also use podman if you prefer
+  docker run --privileged --rm -it -v "IMPORT_SONGS_PATH:/app/songs" ghcr.io/quintisimo/disco-manager:latest
 ```
