@@ -1,4 +1,4 @@
-from utils import clear_terminal
+from utils import print_with_banner
 import os
 import cutie
 import shutil
@@ -18,11 +18,7 @@ def remove_song(songs_folder):
         print("No songs available to remove.")
         return
 
-    try:
-        remove_song_indices = cutie.select_multiple(song_dirs)
-        clear_terminal()
-    except KeyboardInterrupt:
-        exit(0)
+    remove_song_indices = print_with_banner(lambda: cutie.select_multiple(song_dirs))
 
     for index in remove_song_indices:
         selected_song = song_dirs[index]

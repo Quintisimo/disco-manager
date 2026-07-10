@@ -6,30 +6,28 @@ import yt_dlp
 from youtube_search import YoutubeSearch
 
 from bpm import analyze_audio, compute_bpm, SAMPLE_RATE
-from utils import clear_terminal
+from utils import print_with_banner
 
 
 def add_song(songs_folder):
-    try:
-        video_list = []
-        add_song_to_video_list = True
+    video_list = []
+    add_song_to_video_list = True
 
-        while add_song_to_video_list:
-            search = input("Search for a song: ")
-            results = YoutubeSearch(search, max_results=10).to_dict()
-            titles = [
-                f"{result['title']} [{result['channel']}] [{result['duration']}] [{result['views']}]"
-                for result in results
-            ]
-            video = results[cutie.select(titles)]
-            video_list.append(video)
-            add_song_to_video_list = cutie.prompt_yes_or_no("Add another song?")
-            clear_terminal()
-            print(
-                f"Songs to be downloaded: {[video['title'] for video in video_list]}\n"
-            )
-    except KeyboardInterrupt:
-        exit(0)
+    while add_song_to_video_list:
+        print_with_banner(lambda: print(
+            f"Songs to be downloaded: {[video['title'] for video in video_list]}\n" if video_list else "\r",
+            end="\n" if video_list else ""
+        ))
+
+        search = input("Search for a song: ")
+        results = YoutubeSearch(search, max_results=10).to_dict()
+        titles = [
+            f"{result['title']} [{result['channel']}] [{result['duration']}] [{result['views']}]"
+            for result in results
+        ]
+        video =  results[cutie.select(titles)]
+        video_list.append(video)
+        add_song_to_video_list = print_with_banner(lambda: cutie.prompt_yes_or_no("Add another song?"))
 
     FORMAT = "ogg"
 
@@ -39,8 +37,7 @@ def add_song(songs_folder):
         folder = f"{songs_folder}/{name}"
         song_path = f"{folder}/Audio"
 
-        clear_terminal()
-        print(f"Downloading {name}...")
+        print_with_banner(lambda: print(f"Downloading {name}..."))
 
         ydl_opts = {
             "quiet": True,
