@@ -10,6 +10,7 @@ INTERVAL = 128
 BEATS = np.array([-32, -16, -8, -4, -2, -1, 1, 2, 4, 8, 16, 32], dtype=np.float64)
 NOBEATS = np.array([-0.5, -0.25, 0.25, 0.5], dtype=np.float64)
 
+
 def compute_bpm(path):
     """Detect tempo (BPM), replacing the bpm-tools `bpm` binary. Reads mono
     32-bit float PCM from ffmpeg, builds a low-res energy envelope, then scans
@@ -35,8 +36,10 @@ def compute_bpm(path):
 
     return _scan_for_bpm(nrg, LOWER, UPPER)
 
+
 def _to_interval(bpm):
     return (SAMPLE_RATE / (bpm / 60)) / INTERVAL
+
 
 def _scan_for_bpm(nrg, slowest_bpm, fastest_bpm, steps=1024, samples=1024):
     L = len(nrg)
@@ -63,6 +66,7 @@ def _scan_for_bpm(nrg, slowest_bpm, fastest_bpm, steps=1024, samples=1024):
             best, best_interval = t, interval
 
     return SAMPLE_RATE / (best_interval * INTERVAL) * 60  # interval_to_bpm
+
 
 def analyze_audio(path):
     """Detect leading/trailing silence (seconds) and total duration (seconds)

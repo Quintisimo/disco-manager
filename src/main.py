@@ -6,20 +6,17 @@ from remove_song import remove_song
 
 songs_folder = "songs"
 
-options = [
-  "Add song",
-  "Remove song"
-]
+options = ["Add song", "Remove song"]
 
 try:
-  selected_option = options[cutie.select(options)]
-  clear_terminal()
+    selected_option = options[cutie.select(options)]
+    clear_terminal()
 except KeyboardInterrupt:
-  exit(0)
+    exit(0)
 
 if selected_option == "Add song":
-  add_song(songs_folder)
+    add_song(songs_folder)
 elif selected_option == "Remove song":
-  remove_song(songs_folder)
+    remove_song(songs_folder)
 else:
-  print("Invalid option selected.")
+    print("Invalid option selected.")

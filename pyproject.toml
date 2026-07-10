@@ -10,3 +10,17 @@ dependencies = [
     "youtube-search>=2.2.0",
     "yt-dlp[default]>=2026.7.4",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.21",
+    "taskipy>=1.14.1",
+    "ty>=0.0.58",
+]
+
+[tool.taskipy.tasks]
+lint = "ruff check"
+post_lint = "ruff format --check"
+lint_fix = "ruff check --fix"
+post_lint_fix = "ruff format"
+typecheck = "ty check"
