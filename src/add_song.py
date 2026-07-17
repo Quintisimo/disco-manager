@@ -6,28 +6,49 @@ import yt_dlp
 from youtube_search import YoutubeSearch
 
 from bpm import analyze_audio, compute_bpm, SAMPLE_RATE
-from utils import print_with_banner
+from utils import print_with_banner, format_views
 
 
 def add_song(songs_folder):
     video_list = []
     add_song_to_video_list = True
 
-    while add_song_to_video_list:
-        print_with_banner(lambda: print(
-            f"Songs to be downloaded: {[video['title'] for video in video_list]}\n" if video_list else "\r",
-            end="\n" if video_list else ""
-        ))
+    def print_with_video_list(func):
+        print_with_banner(
+            lambda: print(
+                f"Songs to be downloaded: {[video['title'] for video in video_list]}\n"
+                if video_list
+                else "\r",
+                end="\n" if video_list else "",
+            )
+        )
+        return func()
 
-        search = input("Search for a song: ")
+    while add_song_to_video_list:
+        search = print_with_video_list(lambda: input("Search for a song: "))
         results = YoutubeSearch(search, max_results=10).to_dict()
         titles = [
-            f"{result['title']} [{result['channel']}] [{result['duration']}] [{result['views']}]"
+            f"{result['title']} [{result['channel']}] [{result['duration']}] [{format_views(result['views'])}]"
             for result in results
         ]
-        video =  results[cutie.select(titles)]
-        video_list.append(video)
-        add_song_to_video_list = print_with_banner(lambda: cutie.prompt_yes_or_no("Add another song?"))
+
+        try:
+            print_with_video_list(
+                lambda: print(
+                    "Select a song from the list below or <Ctrl+C> to search again:\n\nFormat: Title [Channel] [Duration] [views]"
+                )
+            )
+            video = results[cutie.select(titles)]
+            video_list.append(video)
+        finally:
+            add_song_to_video_list = print_with_video_list(
+                lambda: cutie.prompt_yes_or_no("Add another song?")
+            )
+            continue
+
+    if not video_list:
+        print("No songs selected. Exiting.")
+        return
 
     FORMAT = "ogg"
 
@@ -53,7 +74,12 @@ def add_song(songs_folder):
             "extractor-args": "youtube:player_js_version=actual",
             "postprocessor_args": {
                 # sample rate + EBU R128 loudness normalization to -14 LUFS → ffmpeg
-                "extractaudio": ["-ar", str(SAMPLE_RATE), "-af", "loudnorm=I=-14:TP=-1:LRA=11"],
+                "extractaudio": [
+                    "-ar",
+                    str(SAMPLE_RATE),
+                    "-af",
+                    "loudnorm=I=-14:TP=-1:LRA=11",
+                ],
             },
         }
 
