@@ -15,6 +15,6 @@ def print_with_banner(func):
     return func()
 
 
-def format_views(views):
-    num, text = views.split()
-    return f"{millify(int(num.replace(',', '')))} {text}"
+def format_views(views: str) -> str:
+    num, _ = views.split()
+    return f"{millify(int(num.replace(',', '')))}"
