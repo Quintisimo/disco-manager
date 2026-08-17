@@ -1,12 +1,15 @@
 import platform
 import subprocess
 from os import path
-from tkinter import StringVar, Tk, ttk
+from tkinter import PhotoImage, StringVar, Tk, ttk
 
 from add_song import create_add_frame
 
 root = Tk()
 root.title("Disco Manager")
+# https://www.flaticon.com/free-icon/vinyl_812629?term=record&related_id=812629
+photo = PhotoImage(file = 'vinyl.png')
+root.wm_iconphoto(False, photo)
 
 songs_default_folder = "songs"
 
