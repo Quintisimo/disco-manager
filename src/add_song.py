@@ -1,14 +1,15 @@
-from typing import TypedDict, cast
-from tkinter import ttk, messagebox, StringVar
-import random
 import json
+import random
+from tkinter import StringVar, filedialog, messagebox, ttk
+from typing import TypedDict, cast
 
 import cutie
 import yt_dlp
 from youtube_search import YoutubeSearch
 
-from bpm import analyze_audio, compute_bpm, SAMPLE_RATE
-from utils import print_with_banner, format_views
+from bpm import SAMPLE_RATE, analyze_audio, compute_bpm
+from utils import create_entry_with_button, format_views, print_with_banner
+
 
 class YoutubeSearchResults(TypedDict):
     title: str
@@ -17,7 +18,7 @@ class YoutubeSearchResults(TypedDict):
     views: str
     id: str
 
-def get_search_results(search: str, search_table: ttk.Treeview, download_table: ttk.Treeview):
+def get_search_results(search: str, search_table: ttk.Treeview, download_table: ttk.Treeview) -> None:
     results = cast(list[YoutubeSearchResults], YoutubeSearch(search, max_results=10).to_dict())
     search_table.delete(*search_table.get_children())  # Clear previous results
 
@@ -43,7 +44,7 @@ def create_results_table(frame: ttk.Frame, label_text: str) -> ttk.Treeview:
   table.pack(anchor='w', fill='both', expand=True, padx=10, pady=(5, 10))
   return table
 
-def download_selected_songs(download_table: ttk.Treeview, progress: ttk.Progressbar, label: ttk.Label, frame: ttk.Frame, tab: ttk.Frame, songs_folder: str):
+def download_selected_songs(download_table: ttk.Treeview, progress: ttk.Progressbar, label: ttk.Label, frame: ttk.Frame, tab: ttk.Frame, songs_folder: StringVar) -> None:
     rows = [cast(tuple[str, str, str, str, str], download_table.item(row)["values"]) for row in download_table.get_children()]
     if not rows:
         print("No songs selected for download.")
@@ -55,7 +56,7 @@ def download_selected_songs(download_table: ttk.Treeview, progress: ttk.Progress
         name = row[0]
         channel = row[1]
         url = f"https://www.youtube.com/watch?v={row[4]}"
-        folder = f"{songs_folder}/{name}"
+        folder = f"{songs_folder.get()}/{name}"
         song_path = f"{folder}/Audio"
 
         label.config(text=f"Downloading {name}...")
@@ -118,24 +119,30 @@ def download_selected_songs(download_table: ttk.Treeview, progress: ttk.Progress
             frame.update_idletasks()
 
     frame.destroy()  # Close the add song frame
-    create_add_frame(tab)  # Recreate the add song frame
+    create_add_frame(tab=tab, songs_folder=songs_folder)  # Recreate the add song frame
     messagebox.showinfo("Download Complete", "All songs downloaded successfully!")
 
-def create_add_frame(tab: ttk.Frame):
+def create_add_frame(tab: ttk.Frame, songs_folder: StringVar) -> None:
   add_frame = ttk.Frame(tab)
   add_frame.pack(fill='both', expand=True)
 
-  label = ttk.Label(add_frame, text="Search for a song to add:")
-  label.pack(anchor='w', padx=10)
-
-  search_row = ttk.Frame(add_frame)
-  search_row.pack(fill='x', padx=10, pady=5)
+  create_entry_with_button(
+    frame=add_frame,
+    entry_var=songs_folder,
+    entry_state='readonly',
+    button_text="Change Folder",
+    button_command=lambda: songs_folder.set(filedialog.askdirectory(initialdir=songs_folder.get(), title="Select Folder", mustexist=True, parent=add_frame)),
+    label_text="Import folder"
+  )
 
   search_value = StringVar()
-  search_input = ttk.Entry(search_row, textvariable=search_value)
-  search_input.pack(side='left', fill='x', expand=True)
-  search_button = ttk.Button(search_row, text="Search", command=lambda: get_search_results(search_value.get(), search_table, download_table))
-  search_button.pack(side='left', padx=(5, 0))
+  create_entry_with_button(
+    frame=add_frame,
+    entry_var=search_value,
+    button_text="Search",
+    button_command=lambda: get_search_results(search_value.get(), search_table, download_table),
+    label_text="Search for a song to add:"
+  )
 
   search_table = create_results_table(add_frame, "Double-click a song to add it to the download list:")
   download_table = create_results_table(add_frame, "Double-click a song to remove it from the download list:")
@@ -146,7 +153,7 @@ def create_add_frame(tab: ttk.Frame):
   download_progress.pack(fill='x', padx=10, pady=(0, 10))
 
   download_button = ttk.Button(add_frame, text="Download Songs", command=lambda: download_selected_songs(
-    download_table=download_table, progress=download_progress, label=download_label, frame=add_frame, tab=tab, songs_folder="songs"))
+    download_table=download_table, progress=download_progress, label=download_label, frame=add_frame, tab=tab, songs_folder=songs_folder))
   download_button.pack(pady=10)
 
 def add_song(songs_folder):
