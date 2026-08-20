@@ -1,29 +1,32 @@
-import platform
+import os
 import subprocess
-from os import path
 from tkinter import PhotoImage, StringVar, Tk, ttk
 
 from add_song import create_add_frame
 from remove_song import create_remove_frame
+from utils import is_bundle, resource_path
 
 root = Tk()
 root.title("Disco Manager")
 # https://www.flaticon.com/free-icon/vinyl_812629?term=record&related_id=812629
-photo = PhotoImage(file="vinyl.png")
+photo = PhotoImage(file=resource_path("vinyl.png"))
 root.wm_iconphoto(False, photo)
 
-songs_default_folder = "songs"
+songs_default_folder = "./songs"
 
-if platform.system() == "Windows":
-    songs_default_folder = path.expandvars("%localappdata%/Pagoda/Saved/ImportedSongs")
-elif platform.system() == "Linux":
-    songs_default_folder = subprocess.run(
-        "find ~/.local/share/Steam/steamapps/compatdata -type d -name ImportedSongs",
-        shell=True,
-        capture_output=True,
-        text=True,
-        check=True,
-    ).stdout.strip()
+if is_bundle():
+    if os.name == "nt":
+        songs_default_folder = os.path.expandvars(
+            "%localappdata%/Pagoda/Saved/ImportedSongs"
+        )
+    else:
+        songs_default_folder = subprocess.run(
+            "find ~/.local/share/Steam/steamapps/compatdata -type d -name ImportedSongs",
+            shell=True,
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
 
 songs_folder = StringVar(value=songs_default_folder)
 

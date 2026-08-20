@@ -1,4 +1,5 @@
 import json
+import os
 import random
 from tkinter import StringVar, filedialog, messagebox, ttk
 from typing import TypedDict, cast
@@ -7,7 +8,13 @@ import yt_dlp
 from youtube_search import YoutubeSearch
 
 from bpm import SAMPLE_RATE, analyze_audio, compute_bpm
-from utils import create_entry_with_button, format_views
+from utils import (
+    create_entry_with_button,
+    format_views,
+    get_ffmpeg_path,
+    is_bundle,
+    resource_path,
+)
 
 
 class YoutubeSearchResults(TypedDict):
@@ -107,7 +114,7 @@ def download_selected_songs(
                     "preferredquality": "192",  # bitrate in kbps (optional)
                 }
             ],
-            "extractor-args": "youtube:player_js_version=actual",
+            "extractor_args": {"youtube": {"player_js_version": ["actual"]}},
             "postprocessor_args": {
                 # sample rate + EBU R128 loudness normalization to -14 LUFS → ffmpeg
                 "extractaudio": [
@@ -118,6 +125,14 @@ def download_selected_songs(
                 ],
             },
         }
+
+        if is_bundle():
+            ydl_opts["ffmpeg_location"] = get_ffmpeg_path()
+            ydl_opts["js_runtimes"] = {
+                "deno": {
+                    "path": resource_path("deno.exe" if os.name == "nt" else "deno")
+                }
+            }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             error_code = ydl.download([url])

@@ -1,18 +1,20 @@
 [project]
-name = "dad-music"
+name = "disco-manager"
 version = "0.1.0"
-description = "Add your description here"
+description = "Manage custom songs for dead as disco"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "millify>=0.1.1",
     "numpy>=2.0",
     "youtube-search>=2.2.0",
-    "yt-dlp[default]>=2026.7.4",
+    "yt-dlp[default]>=2026.08.19",
 ]
 
 [dependency-groups]
 dev = [
+    "pillow>=12.3.0",
+    "pyinstaller>=6.22.2",
     "ruff>=0.16.2",
     "taskipy>=1.14.1",
     "ty>=0.0.70",
@@ -24,3 +26,4 @@ post_lint = "ruff format --check"
 lint_fix = "ruff check --fix"
 post_lint_fix = "ruff format"
 typecheck = "ty check"
+build = "pyinstaller src/main.py --add-data vinyl.png:. --add-binary deno:. --add-binary ffmpeg:. --icon vinyl.png --clean --noconfirm --name disco-manager"

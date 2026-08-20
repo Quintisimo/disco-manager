@@ -3,6 +3,8 @@ import subprocess
 
 import numpy as np
 
+from utils import get_ffmpeg_path
+
 # Port of bpm-tools' `bpm` (C) Copyright 2013 Mark Hills, GPLv2.
 SAMPLE_RATE = 44100  # bpm-tools assumes this regardless of input, https://www.xmodhub.com/info/xmod-blog/dead-as-disco-custom-music/
 LOWER, UPPER = 84.0, 146.0
@@ -16,7 +18,7 @@ def compute_bpm(path):
     32-bit float PCM from ffmpeg, builds a low-res energy envelope, then scans
     for the interval with the minimum autodifference."""
     raw = subprocess.run(
-        f'ffmpeg -v quiet -vn -i "{path}" -ar {SAMPLE_RATE} -ac 1 -f f32le pipe:1',
+        f'{get_ffmpeg_path()} -v quiet -vn -i "{path}" -ar {SAMPLE_RATE} -ac 1 -f f32le pipe:1',
         shell=True,
         check=True,
         capture_output=True,
@@ -73,7 +75,7 @@ def analyze_audio(path):
     """Detect leading/trailing silence (seconds) and total duration (seconds)
     from an audio file using ffmpeg's silencedetect filter."""
     log = subprocess.run(
-        f'ffmpeg -i "{path}" -af silencedetect=noise=-30dB:d=0.3 -f null -',
+        f'{get_ffmpeg_path()} -i "{path}" -af silencedetect=noise=-30dB:d=0.3 -f null -',
         shell=True,
         check=True,
         text=True,
