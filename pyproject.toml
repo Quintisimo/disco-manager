@@ -5,7 +5,6 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "cutie>=0.3.2",
     "millify>=0.1.1",
     "numpy>=2.0",
     "youtube-search>=2.2.0",

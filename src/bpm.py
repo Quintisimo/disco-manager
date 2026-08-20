@@ -1,5 +1,5 @@
-import subprocess
 import re
+import subprocess
 
 import numpy as np
 
@@ -18,6 +18,7 @@ def compute_bpm(path):
     raw = subprocess.run(
         f'ffmpeg -v quiet -vn -i "{path}" -ar {SAMPLE_RATE} -ac 1 -f f32le pipe:1',
         shell=True,
+        check=True,
         capture_output=True,
     ).stdout
     samples = np.abs(np.frombuffer(raw, dtype="<f4").astype(np.float64)).tolist()
@@ -74,6 +75,7 @@ def analyze_audio(path):
     log = subprocess.run(
         f'ffmpeg -i "{path}" -af silencedetect=noise=-30dB:d=0.3 -f null -',
         shell=True,
+        check=True,
         text=True,
         capture_output=True,
     ).stderr

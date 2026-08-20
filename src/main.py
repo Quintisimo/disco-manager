@@ -1,21 +1,42 @@
-from utils import print_with_banner
-import cutie
+import platform
+import subprocess
+from os import path
+from tkinter import PhotoImage, StringVar, Tk, ttk
 
-from add_song import add_song
-from remove_song import remove_song
+from add_song import create_add_frame
+from remove_song import create_remove_frame
 
-try:
-    songs_folder = "songs"
+root = Tk()
+root.title("Disco Manager")
+# https://www.flaticon.com/free-icon/vinyl_812629?term=record&related_id=812629
+photo = PhotoImage(file="vinyl.png")
+root.wm_iconphoto(False, photo)
 
-    options = ["Add song", "Remove song"]
+songs_default_folder = "songs"
 
-    selected_option = print_with_banner(lambda: options[cutie.select(options)])
+if platform.system() == "Windows":
+    songs_default_folder = path.expandvars("%localappdata%/Pagoda/Saved/ImportedSongs")
+elif platform.system() == "Linux":
+    songs_default_folder = subprocess.run(
+        "find ~/.local/share/Steam/steamapps/compatdata -type d -name ImportedSongs",
+        shell=True,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
 
-    if selected_option == "Add song":
-        add_song(songs_folder)
-    elif selected_option == "Remove song":
-        remove_song(songs_folder)
-    else:
-        print("Invalid option selected.")
-except KeyboardInterrupt:
-    exit(0)
+songs_folder = StringVar(value=songs_default_folder)
+
+tab_control = ttk.Notebook(root)
+
+add_tab = ttk.Frame(tab_control)
+create_add_frame(tab=add_tab, songs_folder=songs_folder)
+tab_control.add(add_tab, text="Add Song")
+
+remove_tab = ttk.Frame(tab_control)
+create_remove_frame(tab=remove_tab, songs_folder=songs_folder)
+tab_control.add(remove_tab, text="Remove Song")
+
+tab_control.pack(expand=1, fill="both")
+
+root.mainloop()
